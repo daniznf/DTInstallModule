@@ -1,7 +1,7 @@
 
 <#PSScriptInfo
 
-.VERSION 1.0.2
+.VERSION 1.1.0
 
 .GUID d4e95bd6-ba9c-4024-8de2-0f6d1b8439b4
 
@@ -108,21 +108,47 @@ if (($Choice -ne "y") -and ($Choice -ne "yes"))
 
 try
 {
-    if (-not (Test-Path $ModuleInstallDir))
-    {
-        Write-Host ""
-        Write-Host "Creating $ModuleInstallDir ..."
-        New-Item -Path $ModuleInstallDir -ItemType Directory -ErrorAction Stop
-    }
-
     Remove-Module $ModuleName -ErrorAction Ignore
 
     Write-Host ""
     Write-Host "Copying module files..."
-    Copy-Item -Path (Join-Path $ModuleDir "*") -Destination $ModuleInstallDir -Include "*.psd1","*.psm1", "README.md", "LICENSE" -ErrorAction Stop
+
+    $DirExclude = "git|vscode|$InstallScriptName"
+    $FileInclude = "\.psd1|\.psm1|README|LICENSE"
+
+    # get files, recursively, excluding directories that match $DirExclude and including only files that match $FileInclude
+    $Files = Get-ChildItem -Path $ModuleDir -Recurse -File |
+        Where-Object { ($_.DirectoryName -notmatch $DirExclude) -and ($_.FullName -match $FileInclude) }
+
+    for ($i = 0; $i -lt $Files.Length; $i++)
+    {
+        $File = $Files[$i]
+        $Source = $File.FullName
+
+        $DestinationDir = $ModuleInstallDir
+
+        # if file is in subdirectory, add that subdirectory to destination
+        if ($File.DirectoryName -ne $ModuleDir)
+        {
+            $RelativeDir = $File.DirectoryName.Replace($ModuleDir, "")
+            $DestinationDir = Join-Path $ModuleInstallDir $RelativeDir
+        }
+
+        if (-not (Test-Path $DestinationDir))
+        {
+            Write-Host ""
+            Write-Host "Creating $DestinationDir..."
+            $null = New-Item -Path $DestinationDir -ItemType Directory -ErrorAction Stop
+        }
+
+        $Destination = Join-Path $DestinationDir $File.Name
+
+        write-host "Copying  $Destination..."
+        Copy-Item -Path $Source -Destination $Destination -ErrorAction Stop -Force
+    }
 
     Write-Host ""
-    Write-Host "Installation finished!"
+    Write-Host "Installation completed!"
     Write-Host ""
     Write-Host "Press return."
     $null = Read-Host
@@ -130,8 +156,9 @@ try
 }
 catch
 {
-    Write-Host $_
     Write-Host ""
+    Write-Host $_
+    Write-Host "Installation failed."
     Write-Host "Press return."
     $null = Read-Host
     exit 1
