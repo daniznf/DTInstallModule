@@ -1,7 +1,7 @@
 
 <#PSScriptInfo
 
-.VERSION 1.0.1
+.VERSION 1.0.2
 
 .GUID d4e95bd6-ba9c-4024-8de2-0f6d1b8439b4
 
@@ -64,8 +64,9 @@ Write-Host "This installation script is going to install $ModuleName from $Modul
 
 if (-not ($PSModuleDir))
 {
+    # Modules should be installed in ModulePath. This should be an array of paths.
     $ModulePaths = $env:PSModulePath.Split(";")
-    if ($ModulePaths -is [System.Array])
+    if ($ModulePaths.Length -gt 1)
     {
         Write-Host ""
         Write-host "Recognized module paths are:"
@@ -86,7 +87,7 @@ if (-not ($PSModuleDir))
     }
     else # $ModulesPaths is string
     {
-        $PSModuleDir = $ModulesPaths
+        $PSModuleDir = $ModulesPaths[0]
     }
 }
 
