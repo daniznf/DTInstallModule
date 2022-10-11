@@ -1,7 +1,7 @@
 
 <#PSScriptInfo
 
-.VERSION 1.1.0
+.VERSION 1.1.1
 
 .GUID d4e95bd6-ba9c-4024-8de2-0f6d1b8439b4
 
@@ -170,7 +170,7 @@ catch
     Installs module.
 
 .DESCRIPTION
-    This script installs module found in containing directory, or parent directory, into modules directory.
+    This script installs module(s) found in containing directory, or parent directory, by copying necessary files into modules directory.
     The script is intended to be run inside the directory of the module to install, but can also be run from anywhere passing necessary parameters.
 
 .PARAMETER ModuleDir
@@ -178,4 +178,12 @@ catch
 
 .PARAMETER PSModuleDir
     One of directories in $env:PSModulePath.
+
+.EXAMPLE
+    .\DTInstallModule.ps1
+    Installs module contained in local or parent directory
+
+.EXAMPLE
+    .\DTInstallModule.ps1 -ModuleDir C:\my_module
+    Installs module contained in C:\my_module
 #>
