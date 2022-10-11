@@ -1,7 +1,7 @@
 
 <#PSScriptInfo
 
-.VERSION 1.0.0
+.VERSION 1.0.1
 
 .GUID d4e95bd6-ba9c-4024-8de2-0f6d1b8439b4
 
@@ -46,8 +46,9 @@ if ($ModuleDir -and (-not (Test-Path $ModuleDir)))
 $InvocationPath = $MyInvocation.MyCommand.Path
 
 if (-not $ModuleDir) { $ModuleDir = Split-Path $InvocationPath -Parent }
+$ModuleDir = Resolve-Path $ModuleDir
 
-# Find this script actual name
+# Find this script's actual name
 $InstallScriptName = $MyInvocation.MyCommand.Name
 $InstallScriptName = $InstallScriptName.Remove($InstallScriptName.LastIndexOf("."))
 
